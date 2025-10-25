@@ -30,6 +30,9 @@
         </slot>
       </div>
     </div>
+    <div v-if="hasActions" class="card-actions" @click.stop>
+      <slot name="actions" />
+    </div>
   </div>
 </template>
 
@@ -70,6 +73,8 @@ const slots = useSlots();
 const hasAuthorContent = computed(() => {
   return Boolean(slots.author || props.authorName || props.authorMeta);
 });
+
+const hasActions = computed(() => Boolean(slots.actions));
 
 function handleCardClick() {
   emit('select-card');
@@ -147,5 +152,9 @@ function handleCardClick() {
 
 .name:hover {
   cursor: pointer;
+}
+
+.card-actions {
+  margin: 12px 7px 4px;
 }
 </style>

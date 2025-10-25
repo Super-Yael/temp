@@ -7,7 +7,9 @@
  * Copyright (c) 2025 by YaelSuperProMax@gmail.com, All Rights Reserved. 
 -->
 ### How to use
+开启Terminal：
 cd xx-mall-project/backend
 npm run start:dev
+再开启一个Terminal：
 cd xx-mall-project/frontend
 npm run serve

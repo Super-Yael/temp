@@ -49,6 +49,14 @@
             <p v-else>这个系列的商品正在补货中，逛逛其他系列吧。</p>
           </header>
 
+          <div
+            v-if="feedback.text"
+            :class="['category-feedback', `category-feedback--${feedback.type}`]"
+            role="status"
+          >
+            {{ feedback.text }}
+          </div>
+
           <div v-if="filteredGoods.length" class="category-goods__grid">
             <ContentCard
               v-for="item in filteredGoods"
@@ -63,6 +71,15 @@
             >
               <template #author>
                 <span class="category-goods__price">{{ formatPrice(item.price) }}</span>
+              </template>
+              <template #actions>
+                <button
+                  type="button"
+                  class="category-goods__button"
+                  @click.stop="handleAddToCart(item)"
+                >
+                  加入购物车
+                </button>
               </template>
             </ContentCard>
           </div>
@@ -84,11 +101,13 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import axios from 'axios';
 import TopNavigation from '@/components/TopNavigation.vue';
 import ContentCard from '@/components/ContentCard.vue';
+import { cart } from '@/store/cart';
+import { auth } from '@/store/auth';
 
 const CATEGORY_LIBRARY = Object.freeze({
   default: {
@@ -241,6 +260,12 @@ const categoryStyle = computed(() => ({
   '--category-accent-soft': categoryDetails.value.accentSoft || 'rgba(39, 3, 166, 0.12)',
 }));
 
+const cartStore = cart;
+const authStore = auth;
+const isLoggedIn = computed(() => Boolean(authStore.token.value && authStore.user.value));
+const feedback = ref({ type: '', text: '' });
+let feedbackTimer = null;
+
 const filteredGoods = computed(() => {
   if (!category.value) {
     return [];
@@ -270,6 +295,28 @@ const getImageSrc = (path) => {
 
 const handleGoodsClick = (goodsItem) => {
   console.log('Selected goods:', goodsItem);
+};
+
+const showFeedback = (type, text) => {
+  if (feedbackTimer) {
+    clearTimeout(feedbackTimer);
+  }
+
+  feedback.value = { type, text };
+  feedbackTimer = setTimeout(() => {
+    feedback.value = { type: '', text: '' };
+    feedbackTimer = null;
+  }, 2600);
+};
+
+const handleAddToCart = async (goodsItem) => {
+  if (!isLoggedIn.value) {
+    showFeedback('error', '请先登录后再添加到购物车');
+    return;
+  }
+
+  const result = await cartStore.addToCart(goodsItem.id, 1);
+  showFeedback(result.success ? 'success' : 'error', result.message);
 };
 
 const loadCategory = async (id) => {
@@ -302,6 +349,13 @@ const loadCategory = async (id) => {
     loading.value = false;
   }
 };
+
+onBeforeUnmount(() => {
+  if (feedbackTimer) {
+    clearTimeout(feedbackTimer);
+    feedbackTimer = null;
+  }
+});
 
 watch(
   () => route.params.id,
@@ -556,6 +610,45 @@ watch(
   color: #2703a6;
   font-weight: 600;
   font-size: 1rem;
+}
+
+.category-goods__button {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--category-accent), #6c2cf5);
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+}
+
+.category-goods__button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(39, 3, 166, 0.2);
+}
+
+.category-goods__button:active {
+  transform: translateY(0);
+  opacity: 0.85;
+}
+
+.category-feedback {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.category-feedback--success {
+  background: rgba(60, 180, 75, 0.12);
+  color: #2a7a38;
+}
+
+.category-feedback--error {
+  background: rgba(217, 48, 37, 0.12);
+  color: #b52119;
 }
 
 .category-empty {

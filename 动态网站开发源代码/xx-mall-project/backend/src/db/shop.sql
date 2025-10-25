@@ -363,4 +363,71 @@ CREATE TABLE `user_address`  (
 -- ----------------------------
 INSERT INTO `user_address` VALUES (1, 1, '管理员', '1333333333', '北京市', '北京市', '朝阳区', '酒仙桥北路 10 号', 1);
 
+-- ----------------------------
+-- Table structure for cart_item
+-- ----------------------------
+DROP TABLE IF EXISTS `cart_item`;
+CREATE TABLE `cart_item`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `goods_id` int NOT NULL,
+  `quantity` int NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uq_cart_user_goods`(`user_id` ASC, `goods_id` ASC) USING BTREE,
+  CONSTRAINT `fk_cart_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_cart_goods_id` FOREIGN KEY (`goods_id`) REFERENCES `goods` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of cart_item
+-- ----------------------------
+INSERT INTO `cart_item` VALUES (1, 1, 9, 1);
+
+-- ----------------------------
+-- Table structure for shop_order
+-- ----------------------------
+DROP TABLE IF EXISTS `shop_order`;
+CREATE TABLE `shop_order`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_number` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `user_id` int NOT NULL,
+  `total_amount` decimal(10, 2) NOT NULL DEFAULT 0.00,
+  `status` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'pending_payment',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uq_shop_order_number`(`order_number` ASC) USING BTREE,
+  INDEX `idx_shop_order_user_id`(`user_id` ASC) USING BTREE,
+  CONSTRAINT `fk_shop_order_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for shop_order_item
+-- ----------------------------
+DROP TABLE IF EXISTS `shop_order_item`;
+CREATE TABLE `shop_order_item`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_id` int NOT NULL,
+  `goods_id` int NOT NULL,
+  `goods_name` varchar(120) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `goods_price` decimal(10, 2) NOT NULL DEFAULT 0.00,
+  `quantity` int NOT NULL DEFAULT 1,
+  `subtotal_amount` decimal(10, 2) NOT NULL DEFAULT 0.00,
+  `goods_ref_id` int NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_shop_order_item_order_id`(`order_id` ASC) USING BTREE,
+  CONSTRAINT `fk_shop_order_item_order_id` FOREIGN KEY (`order_id`) REFERENCES `shop_order` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_shop_order_item_goods_ref` FOREIGN KEY (`goods_ref_id`) REFERENCES `goods` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of shop_order
+-- ----------------------------
+INSERT INTO `shop_order` VALUES (1, 'ORD-202501010000-1234', 1, 299.00, 'pending_payment', NOW(), NOW());
+
+-- ----------------------------
+-- Records of shop_order_item
+-- ----------------------------
+INSERT INTO `shop_order_item` VALUES (1, 1, 9, '草莓冰淇淋', 299.00, 1, 299.00, 9);
+
 SET FOREIGN_KEY_CHECKS = 1;

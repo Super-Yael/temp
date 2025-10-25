@@ -6,6 +6,8 @@ import RegisterView from '@/views/RegisterView.vue';
 import ProfileView from '@/views/ProfileView.vue';
 import CategoryView from '@/views/CategoryView.vue';
 import AddressView from '@/views/AddressView.vue';
+import CartView from '@/views/CartView.vue';
+import OrdersView from '@/views/OrdersView.vue';
 
 const routes = [
   {
@@ -37,6 +39,16 @@ const routes = [
     path: '/address',
     name: 'address',
     component: AddressView,
+  },
+  {
+    path: '/cart',
+    name: 'cart',
+    component: CartView,
+  },
+  {
+    path: '/orders',
+    name: 'orders',
+    component: OrdersView,
   },
   {
     path: '/category/:id',

@@ -40,6 +40,7 @@ export class AuthService {
       isAdmin: user.isAdmin,
       isValidate: user.isValidate,
       addresses: user.addresses ?? [],
+      orders: user.orders ?? [],
     };
   }
 

@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Address } from '../address/address.entity';
+import { Order } from '../order/order.entity';
 
 const bitColumnTransformer = {
   to: (value?: boolean | null) => {
@@ -65,4 +66,7 @@ export class User {
 
   @OneToMany(() => Address, (address) => address.user)
   addresses: Address[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }
