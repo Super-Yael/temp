@@ -43,6 +43,7 @@
             <rect x="8" y="13" width="8" height="1.6" rx="0.8" fill="currentColor" />
             <rect x="8" y="17" width="5.5" height="1.6" rx="0.8" fill="currentColor" />
           </svg>
+          <span v-if="pendingOrders > 0" class="top-navigation__order-dot">{{ pendingOrders }}</span>
         </button>
         <transition name="fade">
           <div v-if="showOrderDropdown" class="top-navigation__order-dropdown" role="menu">
@@ -203,6 +204,7 @@ const userMenuRef = ref(null);
 const orderMenuRef = ref(null);
 const showOrderDropdown = ref(false);
 const orderStatusOptions = computed(() => orderStore.statusOptions.value || []);
+const pendingOrders = computed(() => orderStore.pendingCount.value || 0);
 
 const handleDocumentClick = (event) => {
   if (!showDropdown.value) {
@@ -271,6 +273,13 @@ onMounted(async () => {
     cartStore
       .loadCart()
       .catch((error) => console.error('Failed to load cart:', error));
+    orderStore
+      .refreshPendingCount()
+      .catch((error) => console.error('Failed to refresh pending orders:', error));
+  } else {
+    orderStore
+      .refreshPendingCount()
+      .catch((error) => console.error('Failed to refresh pending orders:', error));
   }
 
   document.addEventListener('click', handleDocumentClick);
@@ -285,6 +294,13 @@ watch(isLoggedIn, (loggedIn) => {
     cartStore
       .loadCart(true)
       .catch((error) => console.error('Failed to refresh cart:', error));
+    orderStore
+      .refreshPendingCount()
+      .catch((error) => console.error('Failed to refresh pending orders:', error));
+  } else {
+    orderStore
+      .refreshPendingCount()
+      .catch((error) => console.error('Failed to refresh pending orders:', error));
   }
 });
 </script>
@@ -395,6 +411,23 @@ watch(isLoggedIn, (loggedIn) => {
 .top-navigation__order-icon {
   width: 20px;
   height: 20px;
+}
+
+.top-navigation__order-dot {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ff4d4f;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 0 2px #ffffff;
 }
 
 .top-navigation__order-dropdown {

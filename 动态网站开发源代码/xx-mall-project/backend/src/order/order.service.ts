@@ -20,6 +20,8 @@ const ORDER_STATUS_OPTIONS: Array<{ value: OrderStatus | 'all'; label: string }>
 
 @Injectable()
 export class OrderService {
+  private readonly autoCancelMinutes = 30;
+
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
@@ -42,6 +44,8 @@ export class OrderService {
       throw new BadRequestException('无效的用户编号');
     }
 
+    await this.cancelExpiredOrdersForUser(userId);
+
     const where: Record<string, unknown> = { user: { id: userId } };
     if (status && status !== 'all') {
       this.assertValidStatus(status);
@@ -53,6 +57,25 @@ export class OrderService {
       relations: { items: true },
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async countOrdersByUser(
+    userId: number,
+    status?: OrderStatus | 'all',
+  ): Promise<number> {
+    if (!Number.isInteger(userId) || userId <= 0) {
+      throw new BadRequestException('无效的用户编号');
+    }
+
+    await this.cancelExpiredOrdersForUser(userId);
+
+    const where: Record<string, unknown> = { user: { id: userId } };
+    if (status && status !== 'all') {
+      this.assertValidStatus(status);
+      where.status = status;
+    }
+
+    return this.orderRepository.count({ where });
   }
 
   async createOrderFromCart(userId: number): Promise<Order> {
@@ -170,5 +193,18 @@ export class OrderService {
     await this.orderRepository.save(order);
 
     return order;
+  }
+
+  private async cancelExpiredOrdersForUser(userId: number): Promise<void> {
+    const expiredAt = new Date(Date.now() - this.autoCancelMinutes * 60 * 1000);
+
+    await this.orderRepository
+      .createQueryBuilder()
+      .update(Order)
+      .set({ status: 'cancelled' })
+      .where('user_id = :userId', { userId })
+      .andWhere('status = :status', { status: 'pending_payment' })
+      .andWhere('created_at <= :expiredAt', { expiredAt })
+      .execute();
   }
 }

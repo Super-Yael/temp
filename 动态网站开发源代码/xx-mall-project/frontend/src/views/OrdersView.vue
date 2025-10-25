@@ -568,6 +568,7 @@ onBeforeUnmount(() => {
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  min-width: 120px;
 }
 
 .orders-card__button:hover {

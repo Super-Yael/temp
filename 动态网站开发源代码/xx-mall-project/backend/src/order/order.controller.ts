@@ -23,7 +23,15 @@ export class OrderController {
   findByUser(
     @Param('userId', ParseIntPipe) userId: number,
     @Query('status') status?: string,
+    @Query('countOnly') countOnly?: string,
   ) {
+    if (countOnly === 'true') {
+      return this.orderService.countOrdersByUser(
+        userId,
+        (status as any) ?? undefined,
+      ).then((count) => ({ count }));
+    }
+
     return this.orderService.findOrdersByUser(
       userId,
       (status as any) ?? undefined,

@@ -567,6 +567,11 @@ onBeforeUnmount(() => {
   margin-left: auto;
 }
 
+.cart-summary__actions > * {
+  min-width: 130px;
+  text-align: center;
+}
+
 .cart-summary__continue {
   padding: 10px 20px;
   border-radius: 999px;

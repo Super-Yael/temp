@@ -18,6 +18,7 @@ const error = ref('');
 const statusOptions = ref(defaultStatusOptions);
 const lastStatus = ref('all');
 const statusInitialized = ref(false);
+const pendingCount = ref(0);
 const paymentModalState = ref({
   visible: false,
   orderId: null,
@@ -53,6 +54,32 @@ const ensureStatusOptions = async () => {
     console.error('Failed to load order status options:', err);
   } finally {
     statusInitialized.value = true;
+    await refreshPendingCount();
+  }
+};
+
+const refreshPendingCount = async () => {
+  const userId = getUserId();
+  if (!userId) {
+    pendingCount.value = 0;
+    return;
+  }
+
+  try {
+    const { data } = await axios.get(
+      `http://localhost:3000/api/orders/user/${userId}`,
+      {
+        params: {
+          status: 'pending_payment',
+          countOnly: true,
+        },
+      },
+    );
+    const count = Number(data?.count ?? 0);
+    pendingCount.value = Number.isFinite(count) ? count : 0;
+  } catch (err) {
+    console.error('Failed to refresh pending order count:', err);
+    pendingCount.value = 0;
   }
 };
 
@@ -85,9 +112,15 @@ const loadOrders = async (status = 'all') => {
     );
 
     ordersList.value = Array.isArray(data) ? data : [];
+    if (status === 'pending_payment') {
+      pendingCount.value = ordersList.value.length;
+    } else {
+      await refreshPendingCount();
+    }
   } catch (err) {
     error.value = extractMessage(err, '加载订单失败，请稍后再试');
     ordersList.value = [];
+    await refreshPendingCount();
   } finally {
     loading.value = false;
   }
@@ -110,6 +143,7 @@ const submitOrder = async () => {
     await Promise.all([
       cartStore.loadCart(true),
       loadOrders('pending_payment'),
+      refreshPendingCount(),
     ]);
 
     return {
@@ -173,7 +207,10 @@ const confirmPaymentStatus = async (paid) => {
       status: 'awaiting_shipment',
     });
 
-    await loadOrders('awaiting_shipment');
+    await Promise.all([
+      loadOrders('awaiting_shipment'),
+      refreshPendingCount(),
+    ]);
     closePaymentModal();
     return { success: true, message: '支付成功，等待发货' };
   } catch (err) {
@@ -201,7 +238,10 @@ const cancelOrder = async (orderId) => {
     });
 
     const targetStatus = lastStatus.value || 'pending_payment';
-    await loadOrders(targetStatus);
+    await Promise.all([
+      loadOrders(targetStatus),
+      refreshPendingCount(),
+    ]);
     return { success: true, message: '订单已取消' };
   } catch (err) {
     return {
@@ -218,10 +258,12 @@ export const ordersStore = {
   statusOptions: readonly(statusOptions),
   statusLabelMap,
   lastStatus: readonly(lastStatus),
+  pendingCount: readonly(pendingCount),
   paymentModalState: readonly(paymentModalState),
   ensureStatusOptions,
   loadOrders,
   submitOrder,
+  refreshPendingCount,
   openPaymentModal,
   closePaymentModal,
   setPaymentChannel,
