@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -13,5 +13,13 @@ export class UserController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findById(id);
+  }
+
+  @Patch(':id/avatar')
+  updateAvatar(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('avatar') avatar?: string | null,
+  ) {
+    return this.userService.updateAvatar(id, avatar ?? null);
   }
 }

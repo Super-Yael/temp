@@ -46,6 +46,9 @@ export class User {
   @Column({ type: 'varchar', length: 45, nullable: true })
   address: string | null;
 
+  @Column({ type: 'longtext', nullable: true })
+  avatar: string | null;
+
   @Column({
     name: 'isadmin',
     type: 'bit',

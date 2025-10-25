@@ -323,6 +323,7 @@ CREATE TABLE `user`  (
   `name` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL,
   `phone` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL,
   `address` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL,
+  `avatar` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL,
   `isadmin` bit(1) NULL DEFAULT b'0',
   `isvalidate` bit(1) NULL DEFAULT b'0',
   PRIMARY KEY (`id`) USING BTREE,
@@ -333,11 +334,11 @@ CREATE TABLE `user`  (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (1, 'admin', 'admin@vilicode.com', 'admin', '管理员', '1333333333', '中华人民共和国', b'1', b'0');
-INSERT INTO `user` VALUES (2, 'vili', 'vili@vilicode.com', 'vili', 'vili', '1344444444', '中华人民共和国', b'0', b'0');
-INSERT INTO `user` VALUES (42, 'as', '', 'as', '', '', '', b'0', b'0');
-INSERT INTO `user` VALUES (44, '11', '11@qq.com', '11', '111', '11', '11', b'0', b'0');
-INSERT INTO `user` VALUES (46, '123', '123123123@qq.com', '123', '123', '123', '123', b'0', b'0');
+INSERT INTO `user` VALUES (1, 'admin', 'admin@vilicode.com', 'admin', '管理员', '1333333333', '中华人民共和国', NULL, b'1', b'0');
+INSERT INTO `user` VALUES (2, 'vili', 'vili@vilicode.com', 'vili', 'vili', '1344444444', '中华人民共和国', NULL, b'0', b'0');
+INSERT INTO `user` VALUES (42, 'as', '', 'as', '', '', '', NULL, b'0', b'0');
+INSERT INTO `user` VALUES (44, '11', '11@qq.com', '11', '111', '11', '11', NULL, b'0', b'0');
+INSERT INTO `user` VALUES (46, '123', '123123123@qq.com', '123', '123', '123', '123', NULL, b'0', b'0');
 
 -- ----------------------------
 -- Table structure for user_address

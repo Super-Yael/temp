@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -28,6 +28,16 @@ export class UserService {
 
   async create(userData: Partial<User>): Promise<User> {
     const user = this.userRepository.create(userData);
+    return this.userRepository.save(user);
+  }
+
+  async updateAvatar(id: number, avatar: string | null): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('用户不存在');
+    }
+
+    user.avatar = avatar ?? null;
     return this.userRepository.save(user);
   }
 }

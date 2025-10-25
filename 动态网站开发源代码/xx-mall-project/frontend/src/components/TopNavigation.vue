@@ -165,6 +165,9 @@ const avatarUrl = computed(() => {
   if (!avatar) {
     return '';
   }
+  if (avatar.startsWith('data:')) {
+    return avatar;
+  }
   if (/^https?:\/\//i.test(avatar)) {
     return avatar;
   }

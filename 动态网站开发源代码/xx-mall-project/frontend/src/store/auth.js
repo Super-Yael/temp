@@ -40,9 +40,19 @@ const logout = () => {
   delete axios.defaults.headers.common.Authorization;
 };
 
+const updateUser = (userInfo = null) => {
+  user.value = userInfo;
+  if (userInfo) {
+    localStorage.setItem('user', JSON.stringify(userInfo));
+  } else {
+    localStorage.removeItem('user');
+  }
+};
+
 export const auth = {
   token,
   user,
   login,
   logout,
+  updateUser,
 };

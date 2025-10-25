@@ -37,6 +37,7 @@ export class AuthService {
       name: user.name,
       phone: user.phone,
       address: user.address,
+      avatar: user.avatar,
       isAdmin: user.isAdmin,
       isValidate: user.isValidate,
       addresses: user.addresses ?? [],
